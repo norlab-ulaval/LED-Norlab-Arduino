@@ -3,7 +3,7 @@
 import rclpy
 from rclpy.node import Node
 
-from std_msgs.msg import String
+from clearpath_platform_msgs.msg import Lights, RGB
 import serial
 
 
@@ -12,23 +12,20 @@ class Publisher_Usb(Node):
 
     def __init__(self):
         super().__init__('basic')
-        timer_period = 0.5
+        timer_period = 0.1
+        self.publisher_ = self.create_publisher(Lights, 'platform/cmd_lights', 10)
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.i = 0
         self.arduino = serial.Serial('/dev/ttyACM0', 9600)
 
     def timer_callback(self):
-        msg = String()
+        msg = Lights
         
-        R = input("enter R component : ")
-        G = input("enter G component : ")
-        B = input("enter B component : ")
+        R = 1000
+        G = 1000
+        B = 1000
          
-        msg.data = f"{R},{G},{B},{R},{G},{B},{R},{G},{B},{R},{G},{B}\n"
-
-       
-
-        self.arduino.write(msg.data.encode('utf-8'))        
+        msg.data.lights = [RGB(R,G,B),RGB(R,G,B),RGB(R,G,B),RGB(R,G,B)]
+        self.publisher_.publish(msg.data)
 
         self.i += 1
 
