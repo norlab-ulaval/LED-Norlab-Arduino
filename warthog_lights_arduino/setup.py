@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'usb_comms_test'
+package_name = 'warthog_lights_arduino'
 
 setup(
     name=package_name,
@@ -20,8 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'usb_comms_pub = usb_comms_test.usb_comms_pub:main', 
-            'usb_color = usb_comms_test.usb_pub_test:main', 
+            'usb_comms_pub = warthog_lights_arduino.usb_comms_pub:main', 
+            'warthog_lights_arduino = warthog_lights_arduino.warthog_lights_arduino:main', 
         ],
     },
 )
