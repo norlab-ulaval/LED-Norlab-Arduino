@@ -1,13 +1,14 @@
 #include <TimerOne.h>
 #include <SPI.h>
-#include <mcp_canbus.h>
+#include <mcp_can.h>
+
 #include <PCA9685.h>
 #include <Wire.h>
 
 // this pin is connected on the protoboard to a resistor setup to convert the 12V motor_enable signal to a digitaly readable value
 #define MOTOR_EN A3
 //  see datasheet of the can bus shield
-#define SPI_CS_PIN 9
+#define SPI_CS_PIN 10
 // maximum battery soc to show the green color
 #define MAX_BATTERY 93.0
 // minimum battery voltage to show full red color 
@@ -38,6 +39,8 @@ const uint16_t BLANK[] = {0,0,0};
 
 // Can bus initilazation
 MCP_CAN CAN(SPI_CS_PIN);
+long unsigned int canId;
+
 // PCA 9685 initialization the adresse are determined by a physical switch on the pcb
 PCA9685 led_left(B001001);
 PCA9685 led_right(B001000);
@@ -55,7 +58,6 @@ void setup() {
 Serial.begin(115200);
 Wire.begin();
 
-Serial.println("mon cul");
 
 led_right.resetDevices();
 
@@ -71,16 +73,15 @@ pinMode(MOTOR_EN, INPUT);
 //setting up the canbus with the proper rate
 
 while(!Serial);
-while (CAN_OK != CAN.begin(CAN_250KBPS))
-    {    
-
-        delay(100);
-    }     
+while(CAN.begin(MCP_ANY, CAN_250KBPS, MCP_8MHZ) != CAN_OK){
+  Serial.println("waiting...");
+}
 
 //setting up the masks and filter for canbus operations
 CAN.init_Mask(0, 0, 0x7ff);
 CAN.init_Mask(1, 0, 0x7ff);
 CAN.init_Filt(0, 0, 0x1e0);
+CAN.setMode(MCP_NORMAL);
 }
 uint16_t current_color[3];
 int current_mode;
@@ -211,11 +212,14 @@ void LED_SET(uint16_t R = 0, uint16_t G = 0, uint16_t B = 0)
       }
 
 void check_can_bus(){
-if(CAN_MSGAVAIL == CAN.checkReceive())            
-    {   CAN.readMsgBuf(&len, buf);    
-        state = buf[0];
-        soc = buf[2];  
-      }
+if(CAN.checkReceive() == CAN_MSGAVAIL){
+  CAN.readMsgBuf(&canId, &len, buf);
+  if(canId == 0x1e0){
+    state = buf[0];
+    soc = buf[2];
+  }
+}
+
 if(soc > MAX_BATTERY){
   soc = MAX_BATTERY;
 }
@@ -242,10 +246,6 @@ void check_serial(){
     sscanf(inputBuffer, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", ROS_COLOR_LF[0], ROS_COLOR_LF[1], ROS_COLOR_LF[2], ROS_COLOR_RF[0], ROS_COLOR_RF[1], ROS_COLOR_RF[2], ROS_COLOR_LR[0], ROS_COLOR_LR[1], ROS_COLOR_LR[2], ROS_COLOR_LR[0], ROS_COLOR_RR[1], ROS_COLOR_RR[2]);
     last_ros = millis();
     }
-
-  
- 
-
 }
 
 int last_serial = 0;
