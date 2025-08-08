@@ -19,15 +19,15 @@ class led_test(Node):
         super().__init__('color_test')
         
         self.arduino = serial.Serial()
-        self.arduino.port = '/dev/ttyACM0'
+        self.arduino.port = '/dev/ttyUSB0'
         self.arduino.baudrate = 115200
-        self.arduino.timeout = 1
+        self.arduino.timeout = 2
         self.arduino.open()
         #self.initialise_link()
-        self.estop_bool = 1
-        self.reset_cntr = 0
-        self.publisher_ = self.create_publisher(Bool, '/emergency_stop', 10)
+        self.estop_bool = True
+        self.publisher_ = self.create_publisher(Bool, '/warthog/platform/emergency_stop', 10)
         self.timer = self.create_timer(0.01, self.estop_state_publisher)
+        self.cntr = 0
         # self.subscription = self.create_subscription(
         #     Lights,
         #     '/cmd_lights',
@@ -43,21 +43,28 @@ class led_test(Node):
 #            time.sleep(0.1)
 
     def estop_state_publisher(self):
-        self.reset_cntr +=1
         msg = Bool()
 
         if self.arduino.in_waiting:
         #     self.estop_bool = self.arduino.readline().decode('utf-8').strip()
             line = self.arduino.readline().strip()
-            self.estop_bool = (line == b'1')
-
+            if (line == b'0'):
+                self.cntr += 1
+                if (self.cntr == 5):
+                    self.estop_bool = False
+                    self.cntr = 0
+            
+            elif (line == b'1'):
+                self.estop_bool = True
+                self.cntr = 0
+            
         msg.data = self.estop_bool
-        #self.get_logger().info(str(msg.data))
+        self.get_logger().info(str(msg.data))
         self.publisher_.publish(msg)
 
-        if(self.reset_cntr > 100):
-            self.arduino.reset_input_buffer()
-            self.reset_cntr = 0
+        # if(self.reset_cntr > 100):
+        #     self.arduino.reset_input_buffer()
+        #     self.reset_cntr = 0
 
 
     # def callback(self, msg):

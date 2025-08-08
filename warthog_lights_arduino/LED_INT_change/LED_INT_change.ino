@@ -212,30 +212,30 @@ void LED_SET(uint16_t R = 0, uint16_t G = 0, uint16_t B = 0)
       }
 
 void check_can_bus(){
-if(CAN.checkReceive() == CAN_MSGAVAIL){
-  CAN.readMsgBuf(&canId, &len, buf);
-  if(canId == 0x1e0){
-    state = buf[0];
-    soc = buf[2];
+    if(CAN.checkReceive() == CAN_MSGAVAIL){
+      CAN.readMsgBuf(&canId, &len, buf);
+      if(canId == 0x1e0){
+        state = buf[0];
+        soc = buf[2];
+      }
+    }
+
+    if(soc > MAX_BATTERY){
+      soc = MAX_BATTERY;
+    }
+    if(soc <= MIN_BATTERY){
+      soc = MIN_BATTERY;
+    }
+    temp = ((soc - MIN_BATTERY)/(MAX_BATTERY - MIN_BATTERY));
+    mul_G = temp;
+    mul_R = 1 - temp;
+
+    soc_color[0] = 2048*mul_R/2;
+    soc_color[1] = 2048*mul_G;
+    soc_color[2] = 0;
+
   }
-}
-
-if(soc > MAX_BATTERY){
-  soc = MAX_BATTERY;
-}
-if(soc <= MIN_BATTERY){
-  soc = MIN_BATTERY;
-}
-temp = ((soc - MIN_BATTERY)/(MAX_BATTERY - MIN_BATTERY));
-mul_G = temp;
-mul_R = 1 - temp;
-
-soc_color[0] = 2048*mul_R/2;
-soc_color[1] = 2048*mul_G;
-soc_color[2] = 0;
-
-}
-
+int last_serial = 0;
 void check_serial(){
 
   if (Serial.available() > 0 ) {
@@ -245,10 +245,18 @@ void check_serial(){
     Data.toCharArray(inputBuffer, sizeof(inputBuffer)); 
     sscanf(inputBuffer, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", ROS_COLOR_LF[0], ROS_COLOR_LF[1], ROS_COLOR_LF[2], ROS_COLOR_RF[0], ROS_COLOR_RF[1], ROS_COLOR_RF[2], ROS_COLOR_LR[0], ROS_COLOR_LR[1], ROS_COLOR_LR[2], ROS_COLOR_LR[0], ROS_COLOR_RR[1], ROS_COLOR_RR[2]);
     last_ros = millis();
+  }
+  if(ESTOP_STATE && (millis() - last_serial) > 100){
+    Serial.write("0\n");
+    last_serial = millis();
+    }
+  else if(!ESTOP_STATE && (millis() - last_serial) > 100){
+    Serial.write("1\n");
+    last_serial = millis();
     }
 }
 
-int last_serial = 0;
+
 void loop() { 
 current_mode = 0; 
 // Highest priority
@@ -256,14 +264,6 @@ current_mode = 0;
 
 ESTOP_STATE = digitalRead(MOTOR_EN);
 
-if(digitalRead(MOTOR_EN) && (millis() - last_serial) > 100){
-  Serial.write("0\n");
-  last_serial = millis();
-  }
-if(!digitalRead(MOTOR_EN) && (millis() - last_serial) > 100){
-  Serial.write("1\n");
-  last_serial = millis();
-  }
 check_can_bus();
 
 check_serial();
