@@ -22,22 +22,22 @@ class Publisher_Usb(Node):
         colors_0 = RGB()
         colors_0.red = 0
         colors_0.green = 0
-        colors_0.blue = 255
+        colors_0.blue = 170
          
         colors_1 = RGB()
         colors_1.red = 0
         colors_1.green = 0
-        colors_1.blue = 255
-                
+        colors_1.blue = 170
+
         colors_2 = RGB()
         colors_2.red = 0
         colors_2.green = 0
-        colors_2.blue = 255
+        colors_2.blue = 170
 
         colors_3 = RGB()    
         colors_3.red = 0
         colors_3.green = 0
-        colors_3.blue = 255
+        colors_3.blue = 170
 
         msg.lights = [colors_0,colors_1,colors_2,colors_3]
         

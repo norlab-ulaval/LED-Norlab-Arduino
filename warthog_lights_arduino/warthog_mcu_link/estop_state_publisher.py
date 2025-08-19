@@ -16,7 +16,7 @@ class estop_pub(Node):
 
     def __init__(self):
 
-        super().__init__('color_test')
+        super().__init__('estate_state_publisher')
         
         self.arduino = serial.Serial()
         self.arduino.port = '/dev/ttyUSB0'
@@ -42,8 +42,9 @@ class estop_pub(Node):
             if (self.cntr == 5):
                 self.estop_bool = False
                 self.cntr = 0
+                
         msg.data = self.estop_bool
-        self.get_logger().info(str(msg.data))
+        # self.get_logger().info(str(msg.data))
         self.publisher_.publish(msg)
 
 

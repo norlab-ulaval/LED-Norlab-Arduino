@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'usb_comms_pub = warthog_mcu_link.ros_dummy_publisher:main', 
+            'ros_dummy = warthog_mcu_link.ros_dummy_publisher:main', 
             'warthog_lights_arduino = warthog_mcu_link.warthog_lights_arduino:main',
             'estop_state_publisher = warthog_mcu_link.estop_state_publisher:main',
         ],
