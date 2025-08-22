@@ -1,4 +1,4 @@
-# LED-Norlab-Arduino
+# Warthog Lights Arduino
 Arduino code for LED-Personalisation and E-Stop state publishing
 
 <img width="723" height="565" alt="image" src="https://github.com/user-attachments/assets/3e5d3079-10a2-4017-95c6-6bcad06100d6" />
