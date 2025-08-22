@@ -10,6 +10,24 @@ The base Clearpath configuration for the LED has been kept, to customize the lig
 # LED Behavior 
 
 
-From the LED control wiki page here is the table of behaviors for the led and the order of priority in which they interact with each other. To change the behaviors of different state, the order of priority or add new behaviors modify the placement of the different `else if` blocks in the main loop of the arduino code [here](https://github.com/norlab-ulaval/LED-Norlab-Arduino/blob/main/Arduino/mcu_arduino_code.ino)
+From the LED control wiki page here is the table of behaviors for the led and the order of priority in which they interact with each other. To change the behaviors of different state, the order of priority or add new behaviors modify the placement of the different `else if` blocks in the main loop of the arduino code [here](https://github.com/norlab-ulaval/LED-Norlab-Arduino/blob/main/Arduino/mcu_arduino_code.ino).
 
-<img width="667" height="462" alt="image" src="https://github.com/user-attachments/assets/3ac55130-e66a-44a8-83b5-68f84ab8cff0" />
+
+ Priority ranked LED behavior 
+| State        | Logic trigger              | Behavior                                 |
+|--------------|----------------------------|------------------------------------------|
+| Charging     | BMS state 3                | pulsing following soc color gradient     |
+| Charged      | BMS state 8                | steady soc full color                    |
+| Low battery  | BMS soc below 30           | blinking rapidly soc empty color         |
+| E-stop       | Estop state low            | blinking current soc color               |
+| ROS          | ros message received       | solid color determined by user           |
+| Stand-by     | no higher priority behavior| current soc color                        |
+
+## BMS state of charge(soc) color gradient
+
+Empty ---------------------------> Full
+
+🟥 🟥 🟧 🟧 🟨 🟨 🟩 🟩 🟩 🟩
+
+
+
