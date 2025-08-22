@@ -60,29 +60,22 @@ enum LED_MODES
 };
 
 // GLOBAL VARIABLES
-bool estop_state = LOW;
-uint16_t current_color[3];
 int last_mode = 1000;
 int opacity = 50;
 int opacity_scaler = 1;
 int blink_counter = 0;
-unsigned char len = 0;
-unsigned char buf[CAN_BUS_BUFFER_SIZE];
 int soc = 100;
 int state = 0;
-unsigned long last_ros;
+int last_estop = 0;
+int last_ros = 0;
+
+// color arrays
+uint16_t current_color[3];
 uint16_t ros_color_front_left[3];
 uint16_t ros_color_rear_left[3];
 uint16_t ros_color_front_right[3];
 uint16_t ros_color_rear_right[3];
 uint16_t soc_color[3];
-float mul_G;
-float mul_R;
-bool ros_bool = false;
-long unsigned int canId;
-int last_estop = 0;
-
-
 
 void setup()
 {
@@ -150,7 +143,12 @@ void loop()
 }
 
 void readCanBus()
-{
+{ 
+  long unsigned int canId;
+
+  unsigned char len = 0;
+  unsigned char buf[CAN_BUS_BUFFER_SIZE];
+
   if (CAN.checkReceive() == CAN_MSGAVAIL)
   {
     CAN.readMsgBuf(&canId, &len, buf);
@@ -169,7 +167,7 @@ void readCanBus()
 
 bool checkEstop()
 {
-  estop_state = digitalRead(MOTOR_EN);
+  bool estop_state = digitalRead(MOTOR_EN);
   
   if ((millis() - last_estop) > 100)
   {
